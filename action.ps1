@@ -19,6 +19,7 @@ $inputs = @{
     test_results_path                   = Get-ActionInput test_results_path
     project_path                        = Get-ActionInput project_path
     no_restore                          = Get-ActionInput no_restore
+    no_build                            = Get-ActionInput no_build
     msbuild_configuration               = Get-ActionInput msbuild_configuration
     msbuild_verbosity                   = Get-ActionInput msbuild_verbosity
     report_name                         = Get-ActionInput report_name
@@ -41,8 +42,7 @@ Write-ActionInfo "Resolved tmpDir as [$tmpDir]"
 $test_results_path = $inputs.test_results_path
 $test_report_path = Join-Path $tmpDir test-results.md
 
-#New-Item -Name $tmpDir -ItemType "directory" -Force
-mkdir $tmpDir -Force
+New-Item -Name $tmpDir -ItemType Directory -Force -ErrorAction Ignore
 
 function Build-MarkdownReport {
     $script:report_name = $inputs.report_name
@@ -277,6 +277,7 @@ else {
     $test_results_path = Join-Path $tmpDir $trxName
 
     $no_restore = $inputs.no_restore
+    $no_build = $inputs.no_build
     $msbuild_configuration = $inputs.msbuild_configuration
     $msbuild_verbosity = $inputs.msbuild_verbosity
 
@@ -298,6 +299,10 @@ else {
     
     if ($no_restore -eq 'true') {
         $dotnetArgs += '--no-restore'
+    }
+
+    if ($no_build -eq 'true') {
+        $dotnetArgs += '--no-build'
     }
 
     if ($inputs.extra_test_parameters) {
